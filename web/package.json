@@ -1,0 +1,29 @@
+{
+  "name": "employee-portal-web",
+  "version": "1.0.0",
+  "description": "React SPA that replaces the Liferay portlets (frontend/employee-portal) and the legacy vanilla-JS UI (frontend/live). Talks to the modular Node.js API in server/.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.1",
+    "@testing-library/user-event": "^14.5.2",
+    "@vitejs/plugin-react": "^4.3.1",
+    "eslint": "^9.9.0",
+    "jsdom": "^25.0.0",
+    "vite": "^5.4.2",
+    "vitest": "^2.0.5"
+  }
+}
