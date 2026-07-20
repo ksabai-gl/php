@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<!DOCTYPE portlet-app PUBLIC
+    "-//Sun Microsystems, Inc.//DTD Portlet Application 2.0//EN"
+    "http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
+
+<portlet-app>
+    <portlet>
+        <portlet-name>employee-list</portlet-name>
+        <display-name>Employee List</display-name>
+        <portlet-class>com.company.hr.portlet.EmployeeListPortlet</portlet-class>
+        <init-param>
+            <name>view-template</name>
+            <value>/html/employeelist/view.jsp</value>
+        </init-param>
+        <expiration-cache>0</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>view</portlet-mode>
+        </supports>
+        <portlet-info>
+            <title>Employee List</title>
+            <short-title>Employees</short-title>
+            <keywords>employee list hr</keywords>
+        </portlet-info>
+        <security-role-ref>
+            <role-name>administrator</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>guest</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>power-user</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>user</role-name>
+        </security-role-ref>
+    </portlet>
+
+    <portlet>
+        <portlet-name>employee-form</portlet-name>
+        <display-name>Employee Form</display-name>
+        <portlet-class>com.company.hr.portlet.EmployeeFormPortlet</portlet-class>
+        <init-param>
+            <name>view-template</name>
+            <value>/html/employeeform/view.jsp</value>
+        </init-param>
+        <expiration-cache>0</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>view</portlet-mode>
+        </supports>
+        <portlet-info>
+            <title>Employee Form</title>
+            <short-title>Add / Edit Employee</short-title>
+            <keywords>employee form hr</keywords>
+        </portlet-info>
+        <security-role-ref>
+            <role-name>administrator</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>guest</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>power-user</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>user</role-name>
+        </security-role-ref>
+    </portlet>
+
+    <portlet>
+        <portlet-name>department-summary</portlet-name>
+        <display-name>Department Summary</display-name>
+        <portlet-class>com.company.hr.portlet.DepartmentSummaryPortlet</portlet-class>
+        <init-param>
+            <name>view-template</name>
+            <value>/html/deptsummary/view.jsp</value>
+        </init-param>
+        <expiration-cache>0</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>view</portlet-mode>
+        </supports>
+        <portlet-info>
+            <title>Department Summary</title>
+            <short-title>Departments</short-title>
+            <keywords>department summary hr</keywords>
+        </portlet-info>
+        <security-role-ref>
+            <role-name>administrator</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>guest</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>power-user</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>user</role-name>
+        </security-role-ref>
+    </portlet>
+</portlet-app>

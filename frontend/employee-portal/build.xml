@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Minimal Ant build for Liferay Plugins SDK style deploy.
+  Prefer using the official Plugins SDK `ant deploy` when available.
+-->
+<project name="employee-portal" basedir="." default="war">
+
+    <property name="src.dir" value="src/main/java"/>
+    <property name="resources.dir" value="src/main/resources"/>
+    <property name="webapp.dir" value="src/main/webapp"/>
+    <property name="build.dir" value="build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="war.file" value="${build.dir}/employee-portal.war"/>
+
+    <!-- Set LIFERAY_LIB to your Liferay tomcat/lib/ext or portal-service jars -->
+    <property name="liferay.lib" value="${env.LIFERAY_LIB}"/>
+
+    <path id="compile.classpath">
+        <fileset dir="${liferay.lib}" includes="**/*.jar" erroronmissingdir="false"/>
+    </path>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${classes.dir}" includeantruntime="false"
+               source="1.7" target="1.7" debug="true">
+            <classpath refid="compile.classpath"/>
+        </javac>
+        <copy todir="${classes.dir}">
+            <fileset dir="${resources.dir}"/>
+        </copy>
+    </target>
+
+    <target name="war" depends="compile">
+        <war destfile="${war.file}" webxml="${webapp.dir}/WEB-INF/web.xml">
+            <fileset dir="${webapp.dir}"/>
+            <classes dir="${classes.dir}"/>
+        </war>
+        <echo message="Built ${war.file} — copy to Liferay deploy/ folder"/>
+    </target>
+
+</project>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Employee Portal</title>
+  <link rel="stylesheet" href="main.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Employee Portal</h1>
+    <nav>
+      <button type="button" class="tab active" data-tab="list">Employee List</button>
+      <button type="button" class="tab" data-tab="form">Employee Form</button>
+      <button type="button" class="tab" data-tab="summary">Department Summary</button>
+    </nav>
+  </header>
+
+  <main>
+    <p id="globalMsg" class="emp-msg" hidden></p>
+    <p id="globalErr" class="emp-err" hidden></p>
+
+    <section id="panel-list" class="emp-portal panel">
+      <h2>Employee List</h2>
+      <form id="filterForm" class="emp-filter">
+        <label>Search: <input type="text" id="q" name="q" /></label>
+        <label>Department:
+          <select id="deptFilter" name="deptId">
+            <option value="0">All</option>
+          </select>
+        </label>
+        <button type="submit">Filter</button>
+      </form>
+      <table class="emp-table" cellpadding="4" cellspacing="0" border="1" width="100%">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="employeeRows">
+          <tr><td colspan="7">Loading…</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="panel-form" class="emp-portal panel" hidden>
+      <h2 id="formTitle">Add Employee</h2>
+      <form id="employeeForm" class="emp-form">
+        <input type="hidden" id="employeeId" value="0" />
+        <table cellpadding="6" cellspacing="0">
+          <tr>
+            <td>Employee Code *</td>
+            <td><input type="text" id="empCode" required /></td>
+          </tr>
+          <tr>
+            <td>First Name *</td>
+            <td><input type="text" id="firstName" required /></td>
+          </tr>
+          <tr>
+            <td>Last Name *</td>
+            <td><input type="text" id="lastName" required /></td>
+          </tr>
+          <tr>
+            <td>Email *</td>
+            <td><input type="text" id="email" required /></td>
+          </tr>
+          <tr>
+            <td>Phone</td>
+            <td><input type="text" id="phone" /></td>
+          </tr>
+          <tr>
+            <td>Department</td>
+            <td>
+              <select id="departmentId">
+                <option value="0">-- Select --</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>Job Title</td>
+            <td><input type="text" id="jobTitle" /></td>
+          </tr>
+          <tr>
+            <td>Status</td>
+            <td>
+              <select id="status">
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="INACTIVE">INACTIVE</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>Hire Date</td>
+            <td><input type="text" id="hireDate" placeholder="YYYY-MM-DD" /></td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <button type="submit" id="saveBtn">Create</button>
+              <button type="button" id="resetFormBtn">New</button>
+            </td>
+          </tr>
+        </table>
+      </form>
+    </section>
+
+    <section id="panel-summary" class="emp-portal panel" hidden>
+      <h2>Department Summary</h2>
+      <table class="emp-table" cellpadding="4" cellspacing="0" border="1" width="100%">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Department</th>
+            <th>Total Employees</th>
+            <th>Active</th>
+          </tr>
+        </thead>
+        <tbody id="summaryRows">
+          <tr><td colspan="4">Loading…</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

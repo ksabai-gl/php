@@ -1,0 +1,52 @@
+# Employee Portal – local deploy notes (traditional stack)
+# ========================================================
+
+## Typical older enterprise layout
+
+  [Browser]
+      |
+      v
+  [Liferay Portal on Tomcat :8080]   <-- Java portlets (screens)
+      |
+      |  HTTP + X-API-Key
+      v
+  [Apache httpd + mod_php :80]       <-- PHP API (backend/)
+      |
+      v
+  [MySQL 5.7]
+
+All pieces run on the same host / LAN as one monolith.
+
+## Apache (sample vhost / alias)
+
+Alias /phpja "C:/phpja/backend"
+
+<Directory "C:/phpja/backend">
+    Options Indexes FollowSymLinks
+    AllowOverride All
+    Require all granted
+</Directory>
+
+Test:
+  http://localhost/phpja/api/health.php
+  http://localhost/phpja/api/employees.php
+    Header: X-API-Key: EMP-PORTAL-LEGACY-KEY-2014
+
+## Liferay
+
+1. Start Liferay Portal 6.2 / 7.0 (Tomcat)
+2. Build employee-portal plugin (Plugins SDK ant deploy, or copy WAR)
+3. Confirm portlet.properties points at http://localhost/phpja/api
+4. In Liferay: Add > Applications > Employee Portal
+   - Employee List
+   - Employee Form
+   - Department Summary
+5. Place all three on one page named "HR Portal"
+
+## PHP built-in server (dev only)
+
+  cd backend
+  php -S localhost:8088
+
+Then set api.base.url=http://localhost:8088/api in portlet.properties
+and call with X-API-Key header.

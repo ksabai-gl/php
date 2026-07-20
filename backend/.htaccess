@@ -1,0 +1,15 @@
+# Allow PUT/DELETE through Apache when using PHP CGI/mod_php
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_METHOD} ^(PUT|DELETE)$
+    RewriteRule ^ - [L]
+</IfModule>
+
+DirectoryIndex index.php
+Options -Indexes
+
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, X-API-Key"
+</IfModule>

@@ -1,0 +1,47 @@
+# Employee Portal – API cheat sheet
+# Header required on all secured endpoints:
+#   X-API-Key: EMP-PORTAL-LEGACY-KEY-2014
+
+## 1. Health
+GET /api/health.php
+
+## 2. List employees
+GET /api/employees.php
+GET /api/employees.php?q=anita
+GET /api/employees.php?dept=2
+
+## 3. Get employee
+GET /api/employees.php?id=1
+
+## 4. Create employee
+POST /api/employees.php
+Content-Type: application/json
+
+{
+  "emp_code": "E006",
+  "first_name": "Priya",
+  "last_name": "Nair",
+  "email": "priya.nair@example.com",
+  "phone": "555-0199",
+  "department_id": 2,
+  "job_title": "QA Analyst",
+  "status": "ACTIVE",
+  "hire_date": "2018-04-01"
+}
+
+## 5. Update employee
+PUT /api/employees.php
+Content-Type: application/json
+
+{
+  "id": 1,
+  "job_title": "Senior HR Manager",
+  "phone": "555-0111"
+}
+
+## 6. Delete employee
+DELETE /api/employees.php?id=5
+
+## Bonus: Departments
+GET /api/departments.php
+GET /api/departments.php?summary=1
