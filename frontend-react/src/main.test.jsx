@@ -1,0 +1,130 @@
+import React from 'react';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom/vitest';
+import { App } from './main.jsx';
+
+const departments = [
+  { id: 2, code: 'ENG', name: 'Engineering', description: 'Product engineering' }
+];
+
+const employees = [
+  {
+    id: 10,
+    emp_code: 'E-010',
+    first_name: 'Priya',
+    last_name: 'Raman',
+    email: 'priya.raman@example.com',
+    department_id: 2,
+    job_title: 'HR Analyst',
+    status: 'ACTIVE'
+  }
+];
+
+const summary = [
+  { id: 2, code: 'ENG', name: 'Engineering', employee_count: 3, active_count: 2 }
+];
+
+beforeEach(() => {
+  global.fetch = vi.fn(async (url) => {
+    if (url.endsWith('/departments')) {
+      return { ok: true, json: async () => ({ success: true, data: departments }) };
+    }
+    if (url.includes('/employees')) {
+      return { ok: true, json: async () => ({ success: true, data: employees }) };
+    }
+    return { ok: false, status: 404, json: async () => ({ success: false, error: 'Not found' }) };
+  });
+});
+
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
+
+test('MAD-138 renders employee list with department data from the migrated API', async () => {
+  render(<App />);
+
+  expect(await screen.findByText('Priya Raman')).toBeInTheDocument();
+  expect(screen.getByText('Engineering')).toBeInTheDocument();
+  expect(screen.getByText('HR Analyst')).toBeInTheDocument();
+  expect(global.fetch).toHaveBeenCalledWith('/api/v1/departments', expect.any(Object));
+  expect(global.fetch).toHaveBeenCalledWith('/api/v1/employees?', expect.any(Object));
+});
+
+test('MAD-138 shows a reachable API error state without exposing secrets', async () => {
+  global.fetch = vi.fn(async () => ({
+    ok: false,
+    status: 401,
+    json: async () => ({ success: false, error: 'Unauthorized' })
+  }));
+
+  render(<App />);
+
+  expect(await screen.findByRole('alert')).toHaveTextContent('Could not reach API: Unauthorized');
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/v1/departments', expect.any(Object)));
+  expect(JSON.stringify(global.fetch.mock.calls)).not.toContain('API_KEY');
+});
+
+test('MAD-138 submits employee create requests and renders field-level validation errors', async () => {
+  global.fetch = vi.fn(async (url, options = {}) => {
+    if (url.endsWith('/departments')) {
+      return { ok: true, json: async () => ({ success: true, data: departments }) };
+    }
+    if (url === '/api/v1/employees?' && (!options.method || options.method === 'GET')) {
+      return { ok: true, json: async () => ({ success: true, data: [] }) };
+    }
+    if (url === '/api/v1/employees' && options.method === 'POST') {
+      return {
+        ok: false,
+        status: 400,
+        json: async () => ({
+          success: false,
+          error: 'Validation failed',
+          fields: { email: 'email must be valid' }
+        })
+      };
+    }
+    return { ok: false, status: 404, json: async () => ({ success: false, error: 'Not found' }) };
+  });
+
+  render(<App />);
+
+  fireEvent.click(await screen.findByRole('button', { name: 'Add Employee' }));
+  fireEvent.change(screen.getByLabelText('Employee code'), { target: { value: 'E-138' } });
+  fireEvent.change(screen.getByLabelText('First name'), { target: { value: 'Maya' } });
+  fireEvent.change(screen.getByLabelText('Last name'), { target: { value: 'Das' } });
+  fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'bad-email' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+  expect(await screen.findByRole('alert')).toHaveTextContent('Validation failed');
+  expect(screen.getByText('email must be valid')).toBeInTheDocument();
+  const postCall = global.fetch.mock.calls.find(([url, options]) => url === '/api/v1/employees' && options?.method === 'POST');
+  expect(postCall).toBeTruthy();
+  expect(JSON.stringify(postCall)).not.toContain('API_KEY');
+});
+
+test('MAD-138 renders department summary counts from the migrated API', async () => {
+  global.fetch = vi.fn(async (url) => {
+    if (url.endsWith('/departments')) {
+      return { ok: true, json: async () => ({ success: true, data: departments }) };
+    }
+    if (url === '/api/v1/employees?') {
+      return { ok: true, json: async () => ({ success: true, data: employees }) };
+    }
+    if (url === '/api/v1/departments?summary=1') {
+      return { ok: true, json: async () => ({ success: true, data: summary }) };
+    }
+    return { ok: false, status: 404, json: async () => ({ success: false, error: 'Not found' }) };
+  });
+
+  render(<App />);
+
+  fireEvent.click(await screen.findByRole('button', { name: 'Department Summary' }));
+
+  expect(await screen.findByText('ENG')).toBeInTheDocument();
+  expect(screen.getByText('Engineering')).toBeInTheDocument();
+  expect(screen.getByText('3')).toBeInTheDocument();
+  expect(screen.getByText('2')).toBeInTheDocument();
+  expect(global.fetch).toHaveBeenCalledWith('/api/v1/departments?summary=1', expect.any(Object));
+});
