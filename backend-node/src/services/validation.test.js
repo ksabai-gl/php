@@ -1,69 +1,3 @@
-const test = require('node:test');
-const assert = require('node:assert/strict');
-const { normalizeEmployee, hasErrors } = require('./validation');
-
-test('MAD-138 normalizeEmployee defaults create fields and trims user input', () => {
-  const originalDate = Date;
-  global.Date = class extends originalDate {
-    constructor(...args) {
-      return args.length ? new originalDate(...args) : new originalDate('2026-07-20T08:12:01.106Z');
-    }
-
-    static now() {
-      return new originalDate('2026-07-20T08:12:01.106Z').getTime();
-    }
-
-    static parse(value) {
-      return originalDate.parse(value);
-    }
-
-    static UTC(...args) {
-      return originalDate.UTC(...args);
-    }
-  };
-
-  try {
-    const { fields, errors } = normalizeEmployee({
-      emp_code: ' E-138 ',
-      first_name: ' Maya ',
-      last_name: ' Das ',
-      email: ' maya.das@example.com ',
-      department_id: '2'
-    });
-
-    assert.deepEqual(errors, {});
-    assert.equal(fields.emp_code, 'E-138');
-    assert.equal(fields.status, 'ACTIVE');
-    assert.equal(fields.hire_date, '2026-07-20');
-    assert.equal(fields.department_id, 2);
-  } finally {
-    global.Date = originalDate;
-  }
-});
-
-test('MAD-138 normalizeEmployee reports required and field-level validation errors', () => {
-  const { errors } = normalizeEmployee({
-    emp_code: '',
-    first_name: '',
-    last_name: 'Das',
-    email: 'invalid-email',
-    status: 'PAUSED'
-  });
-
-  assert.equal(errors.emp_code, 'emp_code is required');
-  assert.equal(errors.first_name, 'first_name is required');
-  assert.equal(errors.email, 'email must be valid');
-  assert.equal(errors.status, 'status must be ACTIVE or INACTIVE');
-  assert.equal(hasErrors(errors), true);
-});
-
-test('MAD-138 partial employee updates reject empty change sets', () => {
-  const { fields, errors } = normalizeEmployee({}, true);
-
-  assert.deepEqual(fields, {});
-  assert.deepEqual(errors, {});
-  assert.equal(hasErrors(errors), false);
-});
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
@@ -114,7 +48,7 @@ test('MAD-138 create validation requires core employee identity fields', () => {
   assert.equal(hasErrors(errors), true);
 });
 
-test('MAD-138 create validation trims input and applies deterministic defaults shape', () => {
+test('MAD-138 create validation trims input and applies normalized department id', () => {
   const { fields, errors } = normalizeEmployee({
     emp_code: ' E-100 ',
     first_name: ' Ana ',
