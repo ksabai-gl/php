@@ -16,7 +16,7 @@ async function api(path, options = {}) {
   return data;
 }
 
-function App() {
+export function App() {
   const [tab, setTab] = useState('list');
   const [departments, setDepartments] = useState([]);
   const [employees, setEmployees] = useState([]);
@@ -144,4 +144,6 @@ function App() {
   </main>;
 }
 
-createRoot(document.getElementById('root')).render(<App />);
+if (document.getElementById('root')) {
+  createRoot(document.getElementById('root')).render(<App />);
+}
