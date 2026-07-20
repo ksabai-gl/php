@@ -21,6 +21,10 @@ const employees = [
   }
 ];
 
+const summary = [
+  { id: 2, code: 'ENG', name: 'Engineering', employee_count: 3, active_count: 2 }
+];
+
 beforeEach(() => {
   global.fetch = vi.fn(async (url) => {
     if (url.endsWith('/departments')) {
@@ -98,4 +102,29 @@ test('MAD-138 submits employee create requests and renders field-level validatio
   const postCall = global.fetch.mock.calls.find(([url, options]) => url === '/api/v1/employees' && options?.method === 'POST');
   expect(postCall).toBeTruthy();
   expect(JSON.stringify(postCall)).not.toContain('API_KEY');
+});
+
+test('MAD-138 renders department summary counts from the migrated API', async () => {
+  global.fetch = vi.fn(async (url) => {
+    if (url.endsWith('/departments')) {
+      return { ok: true, json: async () => ({ success: true, data: departments }) };
+    }
+    if (url === '/api/v1/employees?') {
+      return { ok: true, json: async () => ({ success: true, data: employees }) };
+    }
+    if (url === '/api/v1/departments?summary=1') {
+      return { ok: true, json: async () => ({ success: true, data: summary }) };
+    }
+    return { ok: false, status: 404, json: async () => ({ success: false, error: 'Not found' }) };
+  });
+
+  render(<App />);
+
+  fireEvent.click(await screen.findByRole('button', { name: 'Department Summary' }));
+
+  expect(await screen.findByText('ENG')).toBeInTheDocument();
+  expect(screen.getByText('Engineering')).toBeInTheDocument();
+  expect(screen.getByText('3')).toBeInTheDocument();
+  expect(screen.getByText('2')).toBeInTheDocument();
+  expect(global.fetch).toHaveBeenCalledWith('/api/v1/departments?summary=1', expect.any(Object));
 });
