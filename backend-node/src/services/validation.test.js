@@ -3,6 +3,33 @@ const test = require('node:test');
 
 const { normalizeEmployee, hasErrors } = require('./validation');
 
+test('MAD-138 create validation applies deterministic legacy-compatible defaults', (t) => {
+  const RealDate = Date;
+  t.after(() => {
+    global.Date = RealDate;
+  });
+  global.Date = class extends RealDate {
+    constructor(...args) {
+      return args.length ? new RealDate(...args) : new RealDate('2026-07-20T08:06:18.526Z');
+    }
+
+    static now() {
+      return new RealDate('2026-07-20T08:06:18.526Z').getTime();
+    }
+  };
+
+  const { fields, errors } = normalizeEmployee({
+    emp_code: 'E-138',
+    first_name: 'Maya',
+    last_name: 'Das',
+    email: 'maya.das@example.com'
+  });
+
+  assert.deepEqual(errors, {});
+  assert.equal(fields.status, 'ACTIVE');
+  assert.equal(fields.hire_date, '2026-07-20');
+});
+
 test('MAD-138 create validation requires core employee identity fields', () => {
   const { fields, errors } = normalizeEmployee({
     emp_code: '   ',

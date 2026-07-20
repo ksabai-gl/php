@@ -1,6 +1,6 @@
 import React from 'react';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
 import { App } from './main.jsx';
 
@@ -60,4 +60,42 @@ test('MAD-138 shows a reachable API error state without exposing secrets', async
   expect(await screen.findByRole('alert')).toHaveTextContent('Could not reach API: Unauthorized');
   await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/v1/departments', expect.any(Object)));
   expect(JSON.stringify(global.fetch.mock.calls)).not.toContain('API_KEY');
+});
+
+test('MAD-138 submits employee create requests and renders field-level validation errors', async () => {
+  global.fetch = vi.fn(async (url, options = {}) => {
+    if (url.endsWith('/departments')) {
+      return { ok: true, json: async () => ({ success: true, data: departments }) };
+    }
+    if (url === '/api/v1/employees?' && (!options.method || options.method === 'GET')) {
+      return { ok: true, json: async () => ({ success: true, data: [] }) };
+    }
+    if (url === '/api/v1/employees' && options.method === 'POST') {
+      return {
+        ok: false,
+        status: 400,
+        json: async () => ({
+          success: false,
+          error: 'Validation failed',
+          fields: { email: 'email must be valid' }
+        })
+      };
+    }
+    return { ok: false, status: 404, json: async () => ({ success: false, error: 'Not found' }) };
+  });
+
+  render(<App />);
+
+  fireEvent.click(await screen.findByRole('button', { name: 'Add Employee' }));
+  fireEvent.change(screen.getByLabelText('Employee code'), { target: { value: 'E-138' } });
+  fireEvent.change(screen.getByLabelText('First name'), { target: { value: 'Maya' } });
+  fireEvent.change(screen.getByLabelText('Last name'), { target: { value: 'Das' } });
+  fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'bad-email' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+  expect(await screen.findByRole('alert')).toHaveTextContent('Validation failed');
+  expect(screen.getByText('email must be valid')).toBeInTheDocument();
+  const postCall = global.fetch.mock.calls.find(([url, options]) => url === '/api/v1/employees' && options?.method === 'POST');
+  expect(postCall).toBeTruthy();
+  expect(JSON.stringify(postCall)).not.toContain('API_KEY');
 });
