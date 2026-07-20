@@ -1,0 +1,31 @@
+{
+  "name": "employee-portal-server",
+  "version": "1.0.0",
+  "description": "Modular Node.js/Express API for the Employee Portal (migrated from legacy PHP monolith). Preserves the existing MySQL schema and the /api/employees + /api/departments REST contract, with backward-compatible /api/*.php routes.",
+  "private": true,
+  "main": "src/server.js",
+  "engines": { "node": ">=18.17.0" },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "node --test tests",
+    "lint": "eslint src tests"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.11.0",
+    "pino": "^9.3.2",
+    "pino-http": "^10.2.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "eslint": "^9.9.0",
+    "nodemon": "^3.1.4",
+    "supertest": "^7.0.0"
+  }
+}
